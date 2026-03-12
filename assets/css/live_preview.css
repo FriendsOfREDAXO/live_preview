@@ -44,17 +44,26 @@
 
 /* ---- Sidebar sticky ---- */
 /*
- * Bootstrap 3 nutzt Floats: sticky muss auf der .col-lg-4 selbst sitzen,
- * nicht auf dem Kind-Container. :has() stellt sicher, dass nur die Column
- * mit dem Live-Preview-Panel betroffen ist.
- * height: fit-content verhindert, dass die Float-Column die volle Row-Höhe
- * einnimmt – sonst hat sticky keinen Scrollspiclraum mehr.
+ * Bootstrap 3 setzt float:left auf .col-lg-4 – sticky funktioniert NICHT
+ * auf gefloateten Elementen (CSS-Grundregel).
+ * Lösung: .row auf display:flex umschalten + float entfernen.
+ * Die Spaltenbreiten (66.66% / 33.33%) bleiben via Bootstrap-CSS erhalten.
  */
+.row:has(.col-lg-4 #rex-lp-panel) {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.row:has(.col-lg-4 #rex-lp-panel) > .col-lg-8,
+.row:has(.col-lg-4 #rex-lp-panel) > .col-lg-4 {
+    float: none;
+}
+
 .col-lg-4:has(#rex-lp-panel) {
     position: sticky;
     top: 68px;              /* REDAXO-Navbar-Höhe ~60px + 8px Puffer */
-    height: fit-content;
-    align-self: flex-start; /* Sicherheitsnetz falls Row per Flexbox */
+    align-self: flex-start;
     z-index: 10;
 }
 
