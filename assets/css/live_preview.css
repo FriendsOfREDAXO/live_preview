@@ -31,7 +31,7 @@
 }
 
 /* ---- Vollhöhe-Modus ---- */
-/* JS fügt .rex-lp-sticky ans nächste .panel-Element */
+/* JS fügt .rex-lp-sticky ans nächste .panel-Element (Expand-Modus) */
 .rex-lp-sticky {
     position: sticky !important;
     top: 68px !important;   /* REDAXO-Navbar-Höhe ca. 60px + 8px Puffer */
@@ -40,6 +40,25 @@
 
 #rex-lp-panel.rex-lp-expanded .rex-lp-iframe-wrap {
     height: calc(100vh - 165px);  /* Sticky-Top (68) + Panel-Header (~60) + Toolbar (~37) */
+}
+
+/* ---- Sidebar sticky ---- */
+/*
+ * Das Panel klebt am oberen Viewport-Rand sobald die Seite scrollt.
+ * :has() stellt sicher, dass nur das Live-Preview-Panel sticky wird.
+ * height: fit-content verhindert, dass Bootstrap dem Sidebar-Column
+ * die volle Row-Höhe zuweist, was sticky deaktivieren würde.
+ * max-height + overflow-y: wenn das Panel höher als der Viewport ist,
+ * kann innerhalb gescrollt werden.
+ */
+#rex-js-main-sidebar:has(#rex-lp-panel) {
+    position: sticky;
+    top: 68px;              /* REDAXO-Navbar-Höhe */
+    height: fit-content;
+    align-self: flex-start; /* Sicherheitsnetz für ggf. Flexbox-Kontexte */
+    max-height: calc(100vh - 78px);
+    overflow-y: auto;
+    z-index: 10;
 }
 
 /* ---- Device-Simulation ---- */
