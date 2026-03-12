@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.3] – 2026-03-12
+
+### Fixed
+
+- **Float-Modus Darstellung nach Reload**: Flex-Kette auf `.panel-collapse` und `#rex-lp-panel` komplettiert – iframe-Höhe füllt das Panel nun korrekt aus
+- **Panel-Header als Drag-Zone**: Im Float-Modus kann der gesamte Panel-Header zum Verschieben genutzt werden (außer Toggle-Switch und Dock-Button)
+- **Bootstrap-Collapse blockiert**: Klick auf Header-Link wird im Float-Modus via Capture-Phase abgefangen
+- **Expand-Button deaktiviert**: Im Float-Modus ausgegraut und funktionslos
+
+---
+
 ## [1.0.2] – 2026-03-12
 
 ### Added
