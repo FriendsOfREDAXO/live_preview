@@ -42,30 +42,7 @@
     height: calc(100vh - 165px);  /* Sticky-Top (68) + Panel-Header (~60) + Toolbar (~37) */
 }
 
-/* ---- Sidebar sticky ---- */
-/*
- * Bootstrap 3 setzt float:left auf .col-lg-4 – sticky funktioniert NICHT
- * auf gefloateten Elementen (CSS-Grundregel).
- * Lösung: .row auf display:flex umschalten + float entfernen.
- * Die Spaltenbreiten (66.66% / 33.33%) bleiben via Bootstrap-CSS erhalten.
- */
-.row:has(.col-lg-4 #rex-lp-panel) {
-    display: flex;
-    align-items: flex-start;
-    flex-wrap: wrap;
-}
-
-.row:has(.col-lg-4 #rex-lp-panel) > .col-lg-8,
-.row:has(.col-lg-4 #rex-lp-panel) > .col-lg-4 {
-    float: none;
-}
-
-.col-lg-4:has(#rex-lp-panel) {
-    position: sticky;
-    top: 68px;              /* REDAXO-Navbar-Höhe ~60px + 8px Puffer */
-    align-self: flex-start;
-    z-index: 10;
-}
+/* Sidebar sticky wird via JS in initStickyColumn() gesetzt */
 
 /* ---- Device-Simulation ---- */
 /* Desktop, Tablet, Mobile: Breite + Transform via JS (applyScale) */
