@@ -34,8 +34,13 @@ Schnellauswahl gängiger Viewport-Breiten per Dropdown:
 ### Viewport-Anzeige
 - Chalk-Style-Labels zeigen die aktuellen Pixel-Dimensionen des Viewports direkt an der Vorschau an
 
+### Per-User-Toggle
+- Ein Schalter im Panel-Header aktiviert oder deaktiviert die Live Preview individuell pro Redakteur
+- Die Einstellung wird serverseitig gespeichert und beim nächsten Seitenaufruf wiederhergestellt
+- Bei deaktiviertem Panel bleibt es zugeklappt – keine Ablenkung für Redakteure, die die Vorschau gerade nicht brauchen
+
 ### Querformat-Rotation
-- Tablet und Mobile per Toolbar-Button in Querformat drehen und zurück
+- Im großen Vorschau-Modal (Vollbild): Tablet und Mobile per Toolbar-Button zwischen Hoch- und Querformat wechseln
 
 ### Persistenz
 - Gewähltes Gerät, Preset, Rotationsstatus und individuelle Größe werden im Browser-LocalStorage gespeichert und beim nächsten Öffnen wiederhergestellt

@@ -45,7 +45,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Ermöglicht natürliches vertikales Scrollen langer Seiten
 
 **Rotation**
-- Querformat-Rotation für Mobile und Tablet per Toolbar-Button
+- Im Modal-Modus (Vollbild): Tablet und Mobile per Toolbar-Button zwischen Hoch- und Querformat wechseln
+
+**Per-User-Toggle**
+- Aktivieren/Deaktivieren des Panels per Switch im Panel-Header, Einstellung wird per User gespeichert
+- Bei deaktivierter Vorschau: Panel bleibt zugeklappt
 
 **Persistenz**
 - Gewähltes Gerät, Preset, Querformat-Status und Custom-Größe werden in `localStorage` gespeichert

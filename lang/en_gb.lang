@@ -9,6 +9,7 @@ live_preview_collapse_height = Compact
 live_preview_modal = Fullscreen preview
 live_preview_modal_close = Close preview
 live_preview_modal_rotate = Rotate
+live_preview_toggle_title = Enable/disable Live Preview
 live_preview_presets = Devices
 live_preview_modal_full = Full width
 live_preview_modal_custom_width = Enter width and press Enter

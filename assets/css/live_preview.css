@@ -706,3 +706,79 @@ body.rex-theme-dark .rex-lp-iframe-wrap {
         border-color: #4a5568;
     }
 }
+
+/* ==========================================================================
+   Panel Header Toggle (Enable / Disable)
+   ========================================================================== */
+
+.rex-lp-header-toggle {
+    float: right;
+    margin: 0 0 0 10px;
+    cursor: pointer;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+/* Pill-Toggle: unsichtbare Checkbox + gestalteter Slider */
+.rex-lp-toggle-pill {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+.rex-lp-toggle-pill .rex-lp-enable-toggle {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.rex-lp-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #ccc;
+    border-radius: 20px;
+    transition: background-color .2s;
+}
+
+.rex-lp-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    left: 3px;
+    top: 3px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform .2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,.25);
+}
+
+.rex-lp-enable-toggle:checked + .rex-lp-toggle-slider {
+    background-color: #5cb85c;
+}
+
+.rex-lp-enable-toggle:checked + .rex-lp-toggle-slider::before {
+    transform: translateX(18px);
+}
+
+/* Dark Mode */
+body.rex-theme-dark .rex-lp-toggle-slider {
+    background-color: #555;
+}
+
+body.rex-theme-dark .rex-lp-enable-toggle:checked + .rex-lp-toggle-slider {
+    background-color: #5cb85c;
+}
+
+@media (prefers-color-scheme: dark) {
+    body.rex-has-theme:not(.rex-theme-light) .rex-lp-toggle-slider {
+        background-color: #555;
+    }
+    body.rex-has-theme:not(.rex-theme-light) .rex-lp-enable-toggle:checked + .rex-lp-toggle-slider {
+        background-color: #5cb85c;
+    }
+}
