@@ -731,11 +731,18 @@
         if (!toggle) { return; }
         var enabled = toggle.checked;
 
-        // Sofort: iframe entladen wenn deaktiviert
+        // iframe sofort laden (data-src → src) oder entladen (src → about:blank)
         var panel = document.getElementById('rex-lp-panel');
-        if (!enabled && panel) {
+        if (panel) {
             var iframe = panel.querySelector('#rex-lp-iframe');
-            if (iframe) { iframe.src = 'about:blank'; }
+            if (iframe) {
+                if (enabled) {
+                    // Kein Reload nötig: data-src ist immer aktuell
+                    iframe.src = iframe.dataset.src || '';
+                } else {
+                    iframe.src = 'about:blank';
+                }
+            }
         }
 
         // Bootstrap-Panel kollabieren / aufklappen
@@ -747,15 +754,8 @@
             }
         }
 
-        // Präferenz speichern
-        // Beim Einschalten: PJAX-Reload des Seitencontainers, damit PHP den iframe frisch rendert
-        // Beim Ausschalten: kein Reload nötig (iframe ist bereits entladen)
-        fetch(toggle.dataset.url + '&enabled=' + (enabled ? 1 : 0))
-            .then(function () {
-                if (enabled) {
-                    $.pjax.reload({ container: '#rex-js-pjax-container', timeout: 5000 });
-                }
-            });
+        // Präferenz asynchron speichern (kein Reload nötig)
+        fetch(toggle.dataset.url + '&enabled=' + (enabled ? 1 : 0));
     });
 
     // -------------------------------------------------------------------------

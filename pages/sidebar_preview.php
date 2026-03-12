@@ -44,7 +44,8 @@
     <div class="rex-lp-iframe-wrap">
         <iframe
             id="rex-lp-iframe"
-            src="<?= rex_escape($livePreviewUrl) ?>"
+            data-src="<?= rex_escape($livePreviewUrl) ?>"
+            <?php if ($livePreviewEnabled): ?>src="<?= rex_escape($livePreviewUrl) ?>"<?php endif; ?>
             sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
         ></iframe>
     </div>

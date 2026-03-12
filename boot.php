@@ -57,7 +57,14 @@ rex_extension::register('STRUCTURE_CONTENT_SIDEBAR', static function (rex_extens
     }
 
     // Panel-Inhalt aus Include holen (gibt HTML-String zurück)
-    $panel = (static function () use ($url, $articleId, $clang): string {
+    // User-Präferenz für das Panel lesen (Default: aktiviert)
+    $userId             = rex::getUser()->getId();
+    $livePreviewEnabled = (bool) rex_addon::get('live_preview')->getConfig('live_preview_enabled_' . $userId, true);
+    $toggleUrl          = rex_url::backendController(['rex-api-call' => 'live_preview_toggle']);
+    $toggleChecked      = $livePreviewEnabled ? ' checked="checked"' : '';
+
+    // Panel-Inhalt immer rendern (iframe ist immer im DOM, src nur wenn aktiviert)
+    $panel = (static function () use ($url, $articleId, $clang, $livePreviewEnabled): string {
         $livePreviewUrl       = $url;
         $livePreviewArticleId = $articleId;
         $livePreviewClang     = $clang;
@@ -66,25 +73,16 @@ rex_extension::register('STRUCTURE_CONTENT_SIDEBAR', static function (rex_extens
         return (string) ob_get_clean();
     })();
 
-    // User-Präferenz für das Panel lesen (Default: aktiviert)
-    $userId            = rex::getUser()->getId();
-    $livePreviewEnabled = (bool) rex_addon::get('live_preview')->getConfig('live_preview_enabled_' . $userId, true);
-    $toggleUrl          = rex_url::backendController(['rex-api-call' => 'live_preview_toggle']);
-    $toggleChecked      = $livePreviewEnabled ? ' checked="checked"' : '';
-
     $panelTitle = '<i class="rex-icon fa-eye"></i> ' . rex_i18n::msg('live_preview_title')
         . '<label class="rex-lp-header-toggle rex-lp-toggle-pill" onclick="event.stopPropagation()" title="' . rex_escape(rex_i18n::msg('live_preview_toggle_title')) . '">'
         . '<input type="checkbox" class="rex-lp-enable-toggle"' . $toggleChecked . ' data-url="' . rex_escape($toggleUrl) . '">'
         . '<span class="rex-lp-toggle-slider"></span>'
         . '</label>';
 
-    // Wenn deaktiviert: leerer Body (kein iframe im DOM → lädt nicht)
-    $fragmentBody = $livePreviewEnabled ? $panel : '';
-
     // REDAXO-Standard-Panel (wie yrewrite)
     $fragment = new rex_fragment();
     $fragment->setVar('title', $panelTitle, false);
-    $fragment->setVar('body', $fragmentBody, false);
+    $fragment->setVar('body', $panel, false);
     $fragment->setVar('collapse', true);
     $fragment->setVar('collapsed', !$livePreviewEnabled);
     $content = $fragment->parse('core/page/section.php');
