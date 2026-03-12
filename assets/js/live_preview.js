@@ -75,18 +75,6 @@
     function getPanel()   { return document.getElementById('rex-lp-panel'); }
     function getIframe()  { return document.getElementById('rex-lp-iframe'); }
 
-    /**
-     * Fügt lp_anchors=1 an eine Frontend-URL an (für SLICE_SHOW-Anker im iframe).
-     * Bestehende lp_anchors-Parameter werden vorher entfernt.
-     */
-    function addLpAnchors(url) {
-        if (!url || url === 'about:blank') { return url; }
-        var base = url.split('#')[0].replace(/([?&])lp_anchors=\d+&?/, function(m, sep) {
-            return sep === '?' ? '?' : '';
-        }).replace(/[?&]$/, '');
-        return base + (base.indexOf('?') !== -1 ? '&' : '?') + 'lp_anchors=1';
-    }
-
     // -------------------------------------------------------------------------
     // Float-Panel – Drag-to-detach
     // -------------------------------------------------------------------------
@@ -500,7 +488,6 @@
 
         var baseUrl = iframe.dataset.src || '';
         if (!baseUrl) {
-            // Fallback wenn data-src nicht gesetzt
             try {
                 iframe.contentWindow.location.reload();
             } catch (e) {
@@ -511,16 +498,12 @@
             return;
         }
 
-        // slice_id aus der aktuellen Backend-URL lesen:
-        // Nach Klick auf "Bearbeiten" steht die ID im URL-Parameter.
-        var params = new window.URLSearchParams(window.location.search);
-        var sliceId = params.get('slice_id');
-        iframe.src = addLpAnchors(baseUrl) + (sliceId ? '#rex-slice-' + sliceId : '');
+        iframe.src = baseUrl;
     }
 
     function scheduleRefresh(delay) {
         clearTimeout(refreshTimer);
-        refreshTimer = setTimeout(refreshIframe, delay || 800);
+        refreshTimer = setTimeout(function () { refreshIframe(); }, delay || 800);
     }
 
     // -------------------------------------------------------------------------
@@ -999,8 +982,7 @@
             var panel   = getPanel();
             if (!iframe || !panel) { return; }
 
-            var search    = window.location.search;
-            var params    = new window.URLSearchParams(search);
+            var params    = new window.URLSearchParams(window.location.search);
             var articleId = params.get('article_id');
             var clang     = params.get('clang') || '1';
             var apiUrl    = (window.rex && window.rex.livePreviewApiUrl) ? window.rex.livePreviewApiUrl : null;
@@ -1010,9 +992,8 @@
             $.getJSON(apiUrl, { article_id: articleId, clang: clang })
                 .done(function (data) {
                     if (data && data.url) {
-                        // dataset.src aktuell halten (clean URL ohne lp_anchors/hash)
                         iframe.dataset.src = data.url;
-                        iframe.src = addLpAnchors(data.url);
+                        iframe.src = data.url;
 
                         // Modal-iframe ebenfalls aktualisieren wenn offen
                         var modal   = document.getElementById('rex-lp-modal');
@@ -1066,7 +1047,7 @@
             if (iframe) {
                 if (enabled) {
                     // Kein Reload nötig: data-src ist immer aktuell
-                    iframe.src = addLpAnchors(iframe.dataset.src || '');
+                    iframe.src = iframe.dataset.src || '';
                 } else {
                     iframe.src = 'about:blank';
                 }

@@ -2,21 +2,6 @@
 
 /** @var rex_addon $this */
 
-// Frontend: Scroll-Anker für Live-Preview (nur wenn lp_anchors=1 in der URL)
-// Jeder Slice bekommt ein unsichtbares <span id="rex-slice-{id}"> vorangestellt,
-// über das der iframe nach einem Slice-Save direkt ans richtige Element scrollt.
-rex_extension::register('SLICE_SHOW', static function(rex_extension_point $ep) {
-    if (!rex_request('lp_anchors', 'int', 0)) {
-        return;
-    }
-    $sliceId = (int) $ep->getParam('slice_id');
-    if (!$sliceId) {
-        return;
-    }
-    return '<span id="rex-slice-' . $sliceId . '" style="display:block;height:0;overflow:hidden;pointer-events:none;"></span>'
-           . $ep->getSubject();
-});
-
 if (!rex::isBackend() || !rex::getUser()) {
     return;
 }

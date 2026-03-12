@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.5] – 2026-03-13
+
+### Removed
+
+- **Slice-Scroll** entfernt: Das automatische Scrollen zur bearbeiteten Slice-Position war nicht zuverlässig und wurde vorerst zurückgezogen
+
+### Fixed
+
+- `load_frontend: true` aus `package.yml` entfernt (war nur für Slice-Scroll benötigt)
+
+---
+
 ## [1.0.4] – 2026-03-13
 
 ### Added
