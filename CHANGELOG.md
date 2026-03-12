@@ -4,7 +4,17 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [1.0.0] – 2025
+## [1.0.1] – 2026-03-12
+
+### Fixed
+
+- **Toggle ohne Reload**: iframe ist jetzt immer im DOM (via `data-src`). Beim Einschalten wird `src = data-src` direkt per JS gesetzt – kein Seiten-Reload, kein PJAX nötig
+- Beim Ausschalten wird `src = about:blank` gesetzt, der iframe lädt damit sofort ab
+- Panel-Body wird immer vollständig gerendert (iframe nie aus dem DOM entfernt)
+
+---
+
+## [1.0.0] – 2026-03-12
 
 ### Initial Release
 
