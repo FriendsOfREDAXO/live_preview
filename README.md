@@ -1,7 +1,5 @@
 # Live Preview for REDAXO
 
-![REDAXO Live Preview](https://raw.githubusercontent.com/FriendsOfREDAXO/live_preview/assets/preview.png)
-
 Live Preview ermöglicht eine direkte Vorschau von Frontend-Seiten im REDAXO-Backend – ohne Tab-Wechsel, ohne Browser-Reload-Raten, ohne Ablenkung vom Redaktionsalltag.
 
 ---
