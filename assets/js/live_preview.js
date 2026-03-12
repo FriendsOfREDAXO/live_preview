@@ -28,6 +28,24 @@
     var resizeHandlesBound    = false;
     var STORAGE_MODAL_PRESET  = 'rex_lp_modal_preset';
 
+    // Float-Panel: LocalStorage-Keys
+    var STORAGE_FLOAT_ACTIVE = 'rex_lp_float_active';
+    var STORAGE_FLOAT_LEFT   = 'rex_lp_float_left';
+    var STORAGE_FLOAT_TOP    = 'rex_lp_float_top';
+    var STORAGE_FLOAT_WIDTH  = 'rex_lp_float_width';
+
+    // Float-Drag-Zustand
+    var floatDrag = {
+        dragging    : false,
+        active      : false,
+        startX      : 0,
+        startY      : 0,
+        offsetX     : 0,
+        offsetY     : 0,
+        origParent  : null,
+        origNextSib : null
+    };
+
     var PRESET_MAP = {
         'desktop-full'      : { device: 'desktop-custom', w: null, h: null, label: 'Volle Breite' },
         'desktop-5k'        : { device: 'desktop-custom', w: 5120, h: 2880, label: '5K (5120)' },
@@ -56,6 +74,210 @@
     function getIframe()  { return document.getElementById('rex-lp-iframe'); }
 
     // -------------------------------------------------------------------------
+    // Float-Panel – Drag-to-detach
+    // -------------------------------------------------------------------------
+
+    /**
+     * Fügt den Drag-Handle (Grip-Icon) in die Toolbar ein.
+     * Sicher mehrfach aufrufbar (idempotent).
+     */
+    function initDraggable() {
+        var panel = getPanel();
+        if (!panel) { return; }
+        var toolbar = panel.querySelector('.rex-lp-toolbar');
+        if (!toolbar || toolbar.querySelector('.rex-lp-drag-handle')) { return; }
+
+        var handle = document.createElement('button');
+        handle.type      = 'button';
+        handle.className = 'rex-lp-drag-handle';
+        handle.title     = 'Panel lösen und frei positionieren';
+        handle.innerHTML = '<i class="fa fa-arrows" aria-hidden="true"></i>';
+        toolbar.insertBefore(handle, toolbar.firstChild);
+
+        // Einmaliger globaler mousedown-Listener (mehrfacher Aufruf wird durch Guard oben verhindert)
+        document.addEventListener('mousedown', onFloatMouseDown);
+    }
+
+    function onFloatMouseDown(e) {
+        if (e.button !== 0) { return; }
+        var panel = getPanel();
+        if (!panel) { return; }
+        var panelEl = panel.closest('.panel');
+        if (!panelEl) { return; }
+
+        // Nur am Drag-Handle ablösen/verschieben (nicht am Titel, kläppt sonst zusammen)
+        var fromHandle = e.target.closest('.rex-lp-drag-handle');
+        if (!fromHandle) { return; }
+
+        e.preventDefault();
+        var rect = panelEl.getBoundingClientRect();
+        floatDrag.dragging = true;
+        floatDrag.startX   = e.clientX;
+        floatDrag.startY   = e.clientY;
+        floatDrag.offsetX  = e.clientX - rect.left;
+        floatDrag.offsetY  = e.clientY - rect.top;
+
+        if (!floatDrag.active) {
+            floatDrag.origParent  = panelEl.parentElement;
+            floatDrag.origNextSib = panelEl.nextSibling;
+        }
+
+        document.addEventListener('mousemove', onFloatMouseMove);
+        document.addEventListener('mouseup',   onFloatMouseUp);
+    }
+
+    function onFloatMouseMove(e) {
+        if (!floatDrag.dragging) { return; }
+        var panel = getPanel();
+        if (!panel) { return; }
+        var panelEl = panel.closest('.panel');
+        if (!panelEl) { return; }
+
+        // Noch nicht floating: erst nach Schwellwert 20px ablösen
+        if (!floatDrag.active) {
+            var dx = Math.abs(e.clientX - floatDrag.startX);
+            var dy = Math.abs(e.clientY - floatDrag.startY);
+            if (dx < 20 && dy < 20) { return; }
+            enterFloatMode(panelEl);
+        }
+
+        // Position dem Mauszeiger folgen lassen
+        var left = Math.max(0, e.clientX - floatDrag.offsetX);
+        var top  = Math.max(0, e.clientY - floatDrag.offsetY);
+        panelEl.style.left = left + 'px';
+        panelEl.style.top  = top  + 'px';
+    }
+
+    function onFloatMouseUp() {
+        document.removeEventListener('mousemove', onFloatMouseMove);
+        document.removeEventListener('mouseup',   onFloatMouseUp);
+        if (!floatDrag.dragging) { return; }
+        floatDrag.dragging = false;
+
+        if (floatDrag.active) {
+            var panel   = getPanel();
+            var panelEl = panel && panel.closest('.panel');
+            if (panelEl) {
+                localStorage.setItem(STORAGE_FLOAT_ACTIVE, '1');
+                localStorage.setItem(STORAGE_FLOAT_LEFT,   panelEl.style.left);
+                localStorage.setItem(STORAGE_FLOAT_TOP,    panelEl.style.top);
+                localStorage.setItem(STORAGE_FLOAT_WIDTH,  panelEl.offsetWidth + 'px');
+            }
+        }
+    }
+
+    /** Löst das Bootstrap-.panel aus der Sidebar und macht es fixed + frei positionierbar. */
+    function enterFloatMode(panelEl) {
+        floatDrag.active = true;
+        var rect = panelEl.getBoundingClientRect();
+
+        // Platzhalter in Sidebar
+        var ph   = document.createElement('div');
+        ph.id    = 'rex-lp-placeholder';
+        floatDrag.origParent.insertBefore(ph, floatDrag.origNextSib);
+
+        // Panel zu <body> verschieben
+        document.body.appendChild(panelEl);
+        panelEl.classList.add('rex-lp-floating');
+        panelEl.style.width = rect.width + 'px';
+        panelEl.style.left  = rect.left  + 'px';
+        panelEl.style.top   = rect.top   + 'px';
+
+        addFloatDockButton(panelEl);
+
+        // Scale neu berechnen
+        var device = localStorage.getItem(STORAGE_DEVICE) || 'desktop';
+        setTimeout(function () { applyScale(device); }, 50);
+    }
+
+    /** Gibt das Panel zurück in die Sidebar an die ursprüngliche Stelle. */
+    function exitFloatMode() {
+        var panel = getPanel();
+        if (!panel) { return; }
+        var panelEl = panel.closest('.panel');
+        if (!panelEl) { return; }
+
+        var ph = document.getElementById('rex-lp-placeholder');
+        if (ph && floatDrag.origParent) {
+            floatDrag.origParent.insertBefore(panelEl, ph);
+            ph.remove();
+        } else if (floatDrag.origParent) {
+            floatDrag.origParent.appendChild(panelEl);
+        }
+
+        panelEl.classList.remove('rex-lp-floating');
+        panelEl.style.left  = '';
+        panelEl.style.top   = '';
+        panelEl.style.width = '';
+
+        removeFloatDockButton(panelEl);
+
+        floatDrag.active      = false;
+        floatDrag.origParent  = null;
+        floatDrag.origNextSib = null;
+
+        localStorage.removeItem(STORAGE_FLOAT_ACTIVE);
+        localStorage.removeItem(STORAGE_FLOAT_LEFT);
+        localStorage.removeItem(STORAGE_FLOAT_TOP);
+        localStorage.removeItem(STORAGE_FLOAT_WIDTH);
+
+        var device = localStorage.getItem(STORAGE_DEVICE) || 'desktop';
+        setTimeout(function () { applyScale(device); }, 50);
+    }
+
+    /** Stellt Float-Zustand aus localStorage wieder her (nach Seitenreload). */
+    function restoreFloatState() {
+        if (!localStorage.getItem(STORAGE_FLOAT_ACTIVE)) { return; }
+        var panel = getPanel();
+        if (!panel) { return; }
+        var panelEl = panel.closest('.panel');
+        if (!panelEl) { return; }
+
+        floatDrag.origParent  = panelEl.parentElement;
+        floatDrag.origNextSib = panelEl.nextSibling;
+        floatDrag.active      = true;
+
+        var ph = document.createElement('div');
+        ph.id  = 'rex-lp-placeholder';
+        floatDrag.origParent.insertBefore(ph, floatDrag.origNextSib);
+
+        document.body.appendChild(panelEl);
+        panelEl.classList.add('rex-lp-floating');
+        panelEl.style.width = localStorage.getItem(STORAGE_FLOAT_WIDTH) || '380px';
+        panelEl.style.left  = localStorage.getItem(STORAGE_FLOAT_LEFT)  || '20px';
+        panelEl.style.top   = localStorage.getItem(STORAGE_FLOAT_TOP)   || '80px';
+
+        addFloatDockButton(panelEl);
+    }
+
+    function addFloatDockButton(panelEl) {
+        if (panelEl.querySelector('.rex-lp-dock-btn')) { return; }
+        var heading = panelEl.querySelector('.panel-heading');
+        if (!heading) { return; }
+        heading.style.position = 'relative';
+
+        var btn       = document.createElement('button');
+        btn.type      = 'button';
+        btn.className = 'rex-lp-dock-btn';
+        btn.title     = 'Zurück in die Sidebar';
+        btn.innerHTML = '<i class="fa fa-times" aria-hidden="true"></i>';
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            exitFloatMode();
+        });
+        heading.appendChild(btn);
+    }
+
+    function removeFloatDockButton(panelEl) {
+        var btn = panelEl.querySelector('.rex-lp-dock-btn');
+        if (btn) {
+            btn.remove();
+            var heading = panelEl.querySelector('.panel-heading');
+            if (heading) { heading.style.position = ''; }
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Init
     // -------------------------------------------------------------------------
 
@@ -64,6 +286,9 @@
         if (!panel) {
             return;
         }
+
+        initDraggable();
+        restoreFloatState();
 
         // Modal aus der Sidebar herauslösen und direkt in <body> hängen,
         // damit es nicht vom REDAXO-Sidebar-Opacity-Effekt (mouseleave) betroffen ist.
