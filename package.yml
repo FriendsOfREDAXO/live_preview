@@ -1,0 +1,18 @@
+package: live_preview
+version: '1.0.0'
+author: 'Friends Of REDAXO'
+supportpage: https://github.com/FriendsOfREDAXO/live_preview
+
+autoload:
+    classes:
+        - lib
+
+requires:
+    redaxo: '^5.17'
+    php: '^8.1'
+
+installer_ignore:
+    - .github
+    - .gitignore
+    - CHANGELOG.md
+    - LICENSE

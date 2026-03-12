@@ -1,0 +1,708 @@
+/**
+ * Live Preview – CSS
+ * Nutzt REDAXO-Standard-Panel via core/page/section.php (wie yrewrite)
+ */
+
+/* ---- Toolbar ---- */
+.rex-lp-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0 8px;
+}
+
+/* ---- iframe-Wrapper ---- */
+.rex-lp-iframe-wrap {
+    position: relative;
+    width: 100%;
+    height: 400px;           /* Standardhöhe – kompakt */
+    overflow: hidden;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    transition: height 0.25s ease;
+}
+
+#rex-lp-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* ---- Vollhöhe-Modus ---- */
+/* JS fügt .rex-lp-sticky ans nächste .panel-Element */
+.rex-lp-sticky {
+    position: sticky !important;
+    top: 68px !important;   /* REDAXO-Navbar-Höhe ca. 60px + 8px Puffer */
+    z-index: 100;
+}
+
+#rex-lp-panel.rex-lp-expanded .rex-lp-iframe-wrap {
+    height: calc(100vh - 165px);  /* Sticky-Top (68) + Panel-Header (~60) + Toolbar (~37) */
+}
+
+/* ---- Device-Simulation ---- */
+/* Desktop, Tablet, Mobile: Breite + Transform via JS (applyScale) */
+/* iframe darf nicht durch CSS begrenzt werden */
+#rex-lp-iframe {
+    max-width: none !important;
+}
+
+/* Overflow für Tablet/Mobile: kein horizontales Scrollen, da skaliert */
+#rex-lp-panel.rex-lp-device-tablet .rex-lp-iframe-wrap,
+#rex-lp-panel.rex-lp-device-mobile .rex-lp-iframe-wrap {
+    overflow: hidden;
+}
+
+/* ---- Expand-Button-Icon wechseln ---- */
+#rex-lp-panel.rex-lp-expanded #rex-lp-expand .fa-expand::before {
+    content: "\f066"; /* fa-compress */
+}
+
+/* Body-Klasse wenn Modal offen – REDAXO-Navigation deaktivieren */
+body.rex-lp-modal-active .rex-navi-main,
+body.rex-lp-modal-active #rex-js-nav-main,
+body.rex-lp-modal-active .rex-js-nav,
+body.rex-lp-modal-active [class*="rex-navi"] {
+    pointer-events: none !important;
+}
+
+/* ============================================================
+   Vollbild-Modal
+   ============================================================ */
+
+#rex-lp-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    background: rgba(0, 0, 0, 0.88);
+    padding: 0;
+    box-sizing: border-box;
+    pointer-events: all;
+}
+
+#rex-lp-modal.rex-lp-modal-open {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+#rex-lp-modal-inner {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    background: #fff;
+    overflow: hidden;
+}
+
+/* ---- Toolbar im Modal ---- */
+#rex-lp-modal-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: #2c3e50;
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+    overflow: visible;
+}
+
+#rex-lp-modal-toolbar .btn-default {
+    color: #ecf0f1;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+#rex-lp-modal-toolbar .btn-default:hover,
+#rex-lp-modal-toolbar .btn-default.active {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Refresh-Button schiebt alles Folgende nach rechts */
+#rex-lp-modal-refresh {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+#rex-lp-modal-toolbar .btn-danger {
+    flex-shrink: 0;
+}
+
+/* ---- Dimensions-Anzeige ---- */
+#rex-lp-modal-dimensions {
+    display: inline-block;
+    font-family: monospace;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    min-width: 96px;
+    text-align: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+}
+
+/* ---- Preset-Dropdown ---- */
+.rex-lp-preset-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.rex-lp-preset-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    z-index: 100;
+    min-width: 230px;
+    background: #1d2e40;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 5px;
+    list-style: none;
+    margin: 0;
+    padding: 5px 0;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.6);
+}
+
+.rex-lp-preset-menu.rex-lp-preset-menu-open {
+    display: block;
+}
+
+.rex-lp-preset-group {
+    padding: 8px 12px 3px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.35);
+    cursor: default;
+}
+
+.rex-lp-preset-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 4px 0;
+}
+
+.rex-lp-preset-menu li a.rex-lp-preset-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 12px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.1s, color 0.1s;
+}
+
+.rex-lp-preset-menu li a.rex-lp-preset-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.rex-lp-preset-menu li a.rex-lp-preset-btn.active {
+    color: #5bc0de;
+    background: rgba(91, 192, 222, 0.1);
+}
+
+.rex-lp-preset-menu li a.rex-lp-preset-btn small {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 10px;
+    margin-left: 14px;
+    font-family: monospace;
+}
+
+/* ---- Stage – Bereich für iframe ---- */
+/* ---- Chalk-Maßanzeige in der Bühne ---- */
+.rex-lp-chalk {
+    position: absolute;
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Bradley Hand', cursive;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.55);
+    text-shadow:
+        0 0 6px rgba(255, 255, 255, 0.18),
+        1px 1px 4px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+    pointer-events: none;
+    letter-spacing: 0.06em;
+    z-index: 15;
+    display: none;
+}
+
+/* Breiten-Label – per JS unterhalb des Frame-Wraps positioniert */
+.rex-lp-chalk-w {
+    top: 0;
+    left: 0;
+    transform: translateX(-50%);
+}
+/* Messlinien links + rechts des Texts */
+.rex-lp-chalk-w::before,
+.rex-lp-chalk-w::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 24px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4));
+}
+.rex-lp-chalk-w::before {
+    right: calc(100% + 5px);
+    transform: scaleX(-1);
+}
+.rex-lp-chalk-w::after {
+    left: calc(100% + 5px);
+}
+
+/* Höhen-Label – per JS rechts neben Frame-Wrap positioniert */
+.rex-lp-chalk-h {
+    top: 0;
+    left: 0;
+    transform: translateY(-50%) rotate(90deg);
+    transform-origin: center center;
+}
+.rex-lp-chalk-h::before,
+.rex-lp-chalk-h::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 20px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4));
+}
+.rex-lp-chalk-h::before {
+    right: calc(100% + 5px);
+    transform: scaleX(-1);
+}
+.rex-lp-chalk-h::after {
+    left: calc(100% + 5px);
+}
+
+/* Chalk-Labels nur bei Device-Modi (Tablet/Mobile) sichtbar */
+.rex-lp-device-tablet .rex-lp-chalk,
+.rex-lp-device-mobile .rex-lp-chalk {
+    display: block;
+}
+
+/* ---- Stage – Bereich für iframe ---- */
+#rex-lp-modal-stage {
+    flex: 1 1 auto;
+    overflow: auto;
+    background: radial-gradient(ellipse at 60% 20%, #484848 0%, #282828 40%, #111111 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 46px 50px;
+    position: relative;
+}
+
+#rex-lp-modal-frame-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* ---- Desktop Vollbild: vollflächig, kein Padding ---- */
+#rex-lp-modal:not(.rex-lp-device-tablet):not(.rex-lp-device-mobile):not(.rex-lp-desktop-custom) #rex-lp-modal-stage {
+    padding: 0;
+    overflow: hidden;
+}
+
+#rex-lp-modal:not(.rex-lp-device-tablet):not(.rex-lp-device-mobile):not(.rex-lp-desktop-custom) #rex-lp-modal-frame-wrap {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    background: none;
+    padding: 0;
+    box-shadow: none;
+}
+
+/* iframe im Desktop-Vollbild füllt den Wrap */
+#rex-lp-modal:not(.rex-lp-device-tablet):not(.rex-lp-device-mobile):not(.rex-lp-desktop-custom) #rex-lp-modal-iframe {
+    width: 100%;
+    height: 100%;
+}
+
+/* Mobile Stage: kein Scroll, Device zentriert */
+#rex-lp-modal.rex-lp-device-mobile #rex-lp-modal-stage {
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 50px 70px;
+}
+
+/* Tablet Stage: scrollbar, damit das höhere Gerät vollständig erreichbar ist */
+#rex-lp-modal.rex-lp-device-tablet #rex-lp-modal-stage {
+    overflow: auto;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 50px 50px 50px;
+}
+
+#rex-lp-modal.rex-lp-desktop-custom #rex-lp-modal-stage {
+    padding: 60px 80px 140px;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+}
+
+#rex-lp-modal.rex-lp-desktop-custom #rex-lp-modal-frame-wrap {
+    flex-shrink: 0;
+    overflow: hidden;           /* Iframe-Overflow abschneiden (layout-Box > display-Größe) */
+    border-radius: 8px;
+    background: none;
+    box-shadow:
+        0 0 0 2px #0d0d0d,
+        0 24px 80px rgba(0, 0, 0, 0.65);
+    line-height: 0;
+}
+
+/* Monitor-Bezel als Overlay über dem iframe (z-index > iframe) + Kamera-Punkt */
+#rex-lp-modal.rex-lp-desktop-custom #rex-lp-modal-frame-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 10;
+    /* Bezel-Overlay: 16px rundum dunkel */
+    box-shadow:
+        inset 0 0 0 16px #1c1c1e,
+        inset 0 0 0 17px rgba(255, 255, 255, 0.06);
+    /* Kamera-Punkt zentriert oben im Bezel */
+    background: radial-gradient(circle, #2e2e2e 3.5px, transparent 4px) center 8px / auto no-repeat;
+}
+
+/* Monitor-Standfuß: separates Element da overflow:hidden auf frame-wrap ::after clippen würde */
+#rex-lp-monitor-stand {
+    display: none;
+    position: absolute;
+    height: 58px;
+    width: 150px;               /* wird via JS je Preset-Breite überschrieben */
+    /* Hals: 10px breit, 36px hoch – Fuß: volle Breite, 22px hoch */
+    background:
+        linear-gradient(#3a3a3a, #2e2e2e) center top    / 10px 36px no-repeat,
+        linear-gradient(#282828, #1e1e1e) center bottom / 150px 22px no-repeat;
+    border-radius: 0 0 6px 6px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+#rex-lp-modal.rex-lp-desktop-custom #rex-lp-monitor-stand {
+    display: block;
+}
+
+#rex-lp-modal.rex-lp-desktop-custom #rex-lp-modal-iframe {
+    max-width: none !important;
+    border-radius: 6px;
+}
+
+/* Handles im Desktop-Custom-Modus (E + S + SE) */
+#rex-lp-modal.rex-lp-desktop-custom .rex-lp-rh-e,
+#rex-lp-modal.rex-lp-desktop-custom .rex-lp-rh-s,
+#rex-lp-modal.rex-lp-desktop-custom .rex-lp-rh-se {
+    display: block;
+}
+
+#rex-lp-modal-iframe {
+    display: block;
+    border: none;
+    background: #fff;
+}
+
+/* Resize-Handles nur bei Device-Modi und Desktop-Custom sichtbar */
+#rex-lp-modal:not(.rex-lp-device-tablet):not(.rex-lp-device-mobile):not(.rex-lp-desktop-custom) .rex-lp-rh {
+    display: none;
+}
+
+/* ---- Resize-Handles ---- */
+.rex-lp-rh {
+    position: absolute;
+    z-index: 50;
+    transition: opacity 0.15s;
+}
+
+/* Ost-Handle (rechter Rand) */
+.rex-lp-rh-e {
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 100%;
+    cursor: ew-resize;
+    background: linear-gradient(to left, rgba(91, 140, 200, 0.2), transparent);
+    transition: background 0.15s;
+}
+
+.rex-lp-rh-e:hover {
+    background: linear-gradient(to left, rgba(91, 192, 222, 0.5), transparent);
+}
+
+.rex-lp-rh-e::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 1px;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 44px;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.5) 0,
+        rgba(255, 255, 255, 0.5) 3px,
+        transparent 3px,
+        transparent 6px
+    );
+    border-radius: 2px;
+    opacity: 0.55;
+    transition: opacity 0.15s;
+}
+
+.rex-lp-rh-e:hover::after {
+    opacity: 1;
+}
+
+/* Süd-Handle (unterer Rand) */
+.rex-lp-rh-s {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    cursor: ns-resize;
+    background: linear-gradient(to top, rgba(91, 140, 200, 0.2), transparent);
+    transition: background 0.15s;
+}
+
+.rex-lp-rh-s:hover {
+    background: linear-gradient(to top, rgba(91, 192, 222, 0.5), transparent);
+}
+
+.rex-lp-rh-s::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 1px;
+    transform: translateX(-50%);
+    height: 3px;
+    width: 44px;
+    background: repeating-linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0.5) 0,
+        rgba(255, 255, 255, 0.5) 3px,
+        transparent 3px,
+        transparent 6px
+    );
+    border-radius: 2px;
+    opacity: 0.55;
+    transition: opacity 0.15s;
+}
+
+.rex-lp-rh-s:hover::after {
+    opacity: 1;
+}
+
+/* SE-Ecke */
+.rex-lp-rh-se {
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    cursor: se-resize;
+    z-index: 51;
+}
+
+.rex-lp-rh-se::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 10px;
+    height: 10px;
+    border-right: 3px solid rgba(255, 255, 255, 0.4);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.4);
+    border-radius: 0 0 3px 0;
+    transition: border-color 0.15s;
+}
+
+.rex-lp-rh-se:hover::after {
+    border-color: rgba(91, 192, 222, 0.9);
+}
+
+/* ---- Resize-Zustand ---- */
+.rex-lp-stage-resizing {
+    user-select: none;
+    cursor: inherit;
+}
+
+.rex-lp-stage-resizing * {
+    pointer-events: none;
+}
+
+.rex-lp-stage-resizing .rex-lp-rh {
+    pointer-events: all;
+}
+
+/* ============================================================
+   Mobil-Rahmen (modernes Smartphone)
+   ============================================================ */
+
+#rex-lp-modal.rex-lp-device-mobile #rex-lp-modal-frame-wrap {
+    width: 390px;
+    height: auto;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(175deg, #2e2e30 0%, #1e1e20 50%, #131315 100%);
+    border-radius: 46px;
+    padding: 52px 14px 32px;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.09),
+        0 0 0 1px #080808,
+        0 30px 80px rgba(0, 0, 0, 0.7);
+}
+
+/* Dynamic Island */
+#rex-lp-modal.rex-lp-device-mobile #rex-lp-modal-frame-wrap::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 34px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 5;
+    box-shadow: inset 0 0 0 1px #1a1a1c;
+}
+
+/* Home Indicator */
+#rex-lp-modal.rex-lp-device-mobile #rex-lp-modal-frame-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 3px;
+}
+
+#rex-lp-modal.rex-lp-device-mobile #rex-lp-modal-frame-wrap:not(.rex-lp-resizing) #rex-lp-modal-iframe {
+    width: 100% !important;
+    height: 680px !important;
+    transform: none !important;
+    transform-origin: unset !important;
+    border-radius: 0;
+    display: block;
+}
+
+#rex-lp-modal.rex-lp-device-mobile #rex-lp-modal-frame-wrap.rex-lp-resizing #rex-lp-modal-iframe {
+    width: 100% !important;
+    height: 100% !important;
+    transform: none !important;
+    transform-origin: unset !important;
+    border-radius: 0;
+    display: block;
+}
+
+/* kein externer Stage-Badge */
+#rex-lp-modal.rex-lp-device-mobile #rex-lp-modal-stage::after,
+#rex-lp-modal.rex-lp-device-tablet #rex-lp-modal-stage::after {
+    content: none;
+}
+
+/* ============================================================
+   Tablet-Rahmen (modernes iPad-Pro-Stil, kein Home-Button)
+   ============================================================ */
+/* ============================================================
+   Tablet-Rahmen (klassischer iPad-Stil)
+   ============================================================ */
+#rex-lp-modal.rex-lp-device-tablet #rex-lp-modal-frame-wrap {
+    width: 828px;
+    height: auto;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: #1d1d1f;
+    border-radius: 20px;
+    padding: 60px 30px 80px;
+    box-shadow:
+        inset 0 0 0 1px #3a3a3a,
+        0 0 0 2px #0a0a0a,
+        0 20px 60px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+/* Kamera oben mittig */
+#rex-lp-modal.rex-lp-device-tablet #rex-lp-modal-frame-wrap::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    background: #2a2a2a;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 2px #181818, 0 0 0 1px #444;
+}
+
+/* Home-Button unten mittig */
+#rex-lp-modal.rex-lp-device-tablet #rex-lp-modal-frame-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 38px;
+    height: 38px;
+    background: #252525;
+    border-radius: 50%;
+    border: 2px solid #383838;
+}
+
+#rex-lp-modal.rex-lp-device-tablet #rex-lp-modal-frame-wrap:not(.rex-lp-resizing) #rex-lp-modal-iframe {
+    width: 768px !important;
+    height: 1024px !important;
+    transform: none !important;
+    transform-origin: unset !important;
+    border-radius: 4px;
+    display: block;
+}
+
+/* Beim aktiven Resize: iframe füllt den Frame-Wrap (Chrome-Padding bleibt) */
+#rex-lp-modal.rex-lp-device-tablet #rex-lp-modal-frame-wrap.rex-lp-resizing #rex-lp-modal-iframe {
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    display: block;
+}
+
+/* ---- Dark Mode Modal ---- */
+body.rex-theme-dark #rex-lp-modal-inner {
+    background: #1a202c;
+}
+
+@media (prefers-color-scheme: dark) {
+    body.rex-has-theme:not(.rex-theme-light) #rex-lp-modal-inner {
+        background: #1a202c;
+    }
+}
+
+/* ---- Dark Mode ---- */
+
+body.rex-theme-dark .rex-lp-iframe-wrap {
+    background: #2c3e50;
+    border-color: #4a5568;
+}
+
+@media (prefers-color-scheme: dark) {
+    body.rex-has-theme:not(.rex-theme-light) .rex-lp-iframe-wrap {
+        background: #2c3e50;
+        border-color: #4a5568;
+    }
+}

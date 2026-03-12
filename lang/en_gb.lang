@@ -1,0 +1,15 @@
+live_preview_title = Live Preview
+live_preview_refresh = Refresh
+live_preview_open_frontend = Open in frontend
+live_preview_device_desktop = Desktop
+live_preview_device_tablet = Tablet
+live_preview_device_mobile = Mobile
+live_preview_expand = Full height
+live_preview_collapse_height = Compact
+live_preview_modal = Fullscreen preview
+live_preview_modal_close = Close preview
+live_preview_modal_rotate = Rotate
+live_preview_presets = Devices
+live_preview_modal_full = Full width
+live_preview_modal_custom_width = Enter width and press Enter
+live_preview_modal_resize = Drag to resize

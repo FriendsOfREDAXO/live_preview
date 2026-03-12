@@ -1,0 +1,15 @@
+live_preview_title = Live-Vorschau
+live_preview_refresh = Aktualisieren
+live_preview_open_frontend = Im Frontend öffnen
+live_preview_device_desktop = Desktop
+live_preview_device_tablet = Tablet
+live_preview_device_mobile = Mobil
+live_preview_expand = Vollhöhe
+live_preview_collapse_height = Kompakt
+live_preview_modal = Vollbild-Vorschau
+live_preview_modal_close = Vorschau schließen
+live_preview_modal_rotate = Drehen
+live_preview_presets = Presets
+live_preview_modal_full = Volle Breite
+live_preview_modal_custom_width = Breite eingeben und Enter drücken
+live_preview_modal_resize = Breite ziehen
