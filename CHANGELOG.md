@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.2] – 2026-03-12
+
+### Added
+
+- **Draggable Panel**: Panel lässt sich per Drag-Handle (`⤣`-Icon in der Toolbar) aus der Sidebar lösen und frei im Viewport positionieren
+- Position und Breite werden in `localStorage` gespeichert und nach Seitenreload automatisch wiederhergestellt
+- Platzhalter (gestrichelter Rahmen) markiert die ursprüngliche Stelle in der Sidebar
+- **Dock-Button**: X-Button im floating Panel-Heading bringt das Panel zurück in die Sidebar
+
+---
+
 ## [1.0.1] – 2026-03-12
 
 ### Fixed
