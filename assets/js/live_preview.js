@@ -59,38 +59,11 @@
     // Init
     // -------------------------------------------------------------------------
 
-    function initStickyColumn() {
-        var panel = getPanel();
-        if (!panel) { return; }
-
-        // Bootstrap 3 float:left auf .col-lg-4 verhindert sticky.
-        // Lösung: .row auf flex umschalten und float entfernen.
-        var col = panel.closest('.col-lg-4');
-        if (!col) { return; }
-
-        var row = col.parentElement;
-        if (row && row.classList.contains('row')) {
-            row.style.display        = 'flex';
-            row.style.alignItems     = 'flex-start';
-            row.style.flexWrap       = 'wrap';
-            // float:none auf beiden Spalten
-            Array.prototype.forEach.call(row.children, function (child) {
-                child.style.float = 'none';
-            });
-        }
-
-        col.style.position = 'sticky';
-        col.style.top      = '68px';
-        col.style.zIndex   = '10';
-    }
-
     function init() {
         var panel = getPanel();
         if (!panel) {
             return;
         }
-
-        initStickyColumn();
 
         // Modal aus der Sidebar herauslösen und direkt in <body> hängen,
         // damit es nicht vom REDAXO-Sidebar-Opacity-Effekt (mouseleave) betroffen ist.
