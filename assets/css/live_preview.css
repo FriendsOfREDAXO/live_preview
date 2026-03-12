@@ -44,20 +44,17 @@
 
 /* ---- Sidebar sticky ---- */
 /*
- * Das Panel klebt am oberen Viewport-Rand sobald die Seite scrollt.
- * :has() stellt sicher, dass nur das Live-Preview-Panel sticky wird.
- * height: fit-content verhindert, dass Bootstrap dem Sidebar-Column
- * die volle Row-Höhe zuweist, was sticky deaktivieren würde.
- * max-height + overflow-y: wenn das Panel höher als der Viewport ist,
- * kann innerhalb gescrollt werden.
+ * Bootstrap 3 nutzt Floats: sticky muss auf der .col-lg-4 selbst sitzen,
+ * nicht auf dem Kind-Container. :has() stellt sicher, dass nur die Column
+ * mit dem Live-Preview-Panel betroffen ist.
+ * height: fit-content verhindert, dass die Float-Column die volle Row-Höhe
+ * einnimmt – sonst hat sticky keinen Scrollspiclraum mehr.
  */
-#rex-js-main-sidebar:has(#rex-lp-panel) {
+.col-lg-4:has(#rex-lp-panel) {
     position: sticky;
-    top: 68px;              /* REDAXO-Navbar-Höhe */
+    top: 68px;              /* REDAXO-Navbar-Höhe ~60px + 8px Puffer */
     height: fit-content;
-    align-self: flex-start; /* Sicherheitsnetz für ggf. Flexbox-Kontexte */
-    max-height: calc(100vh - 78px);
-    overflow-y: auto;
+    align-self: flex-start; /* Sicherheitsnetz falls Row per Flexbox */
     z-index: 10;
 }
 
