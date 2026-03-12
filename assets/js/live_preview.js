@@ -75,6 +75,16 @@
     function getPanel()   { return document.getElementById('rex-lp-panel'); }
     function getIframe()  { return document.getElementById('rex-lp-iframe'); }
 
+    /**
+     * Entfernt den Hash (#anchor) aus einer URL, bevor sie als iframe.src gesetzt wird.
+     * Verhindert einen Browser-Quirk: Wenn ein Element mit der Hash-ID im Parent-Document
+     * (Backend) existiert, scrollt der Browser die Backend-Seite zum Anker.
+     */
+    function stripHash(url) {
+        if (!url || url === 'about:blank') { return url; }
+        return url.split('#')[0];
+    }
+
     // -------------------------------------------------------------------------
     // Float-Panel – Drag-to-detach
     // -------------------------------------------------------------------------
@@ -498,7 +508,7 @@
             return;
         }
 
-        iframe.src = baseUrl;
+        iframe.src = stripHash(baseUrl);
     }
 
     function scheduleRefresh(delay) {
@@ -721,7 +731,7 @@
             } else {
                 setModalDevice(savedDevice, true);
             }
-            mIframe.src = src;
+            mIframe.src = stripHash(src);
         }, 0);
     }
 
@@ -993,13 +1003,13 @@
                 .done(function (data) {
                     if (data && data.url) {
                         iframe.dataset.src = data.url;
-                        iframe.src = data.url;
+                        iframe.src = stripHash(data.url);
 
                         // Modal-iframe ebenfalls aktualisieren wenn offen
                         var modal   = document.getElementById('rex-lp-modal');
                         var mIframe = document.getElementById('rex-lp-modal-iframe');
                         if (modal && modal.classList.contains('rex-lp-modal-open') && mIframe) {
-                            mIframe.src = data.url;
+                            mIframe.src = stripHash(data.url);
                         }
                     }
                 });
@@ -1047,7 +1057,7 @@
             if (iframe) {
                 if (enabled) {
                     // Kein Reload nötig: data-src ist immer aktuell
-                    iframe.src = iframe.dataset.src || '';
+                    iframe.src = stripHash(iframe.dataset.src || '');
                 } else {
                     iframe.src = 'about:blank';
                 }

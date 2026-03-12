@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.6] – 2026-03-13
+
+### Fixed
+
+- **Sprungmarken-Scroll im Backend**: Wenn die vorgeschaute Frontend-URL einen Hash-Anker enthält (z.B. One-Page-Sites wie `https://example.com/#kontakt`), scrollte das REDAXO-Backend automatisch zu einem gleichnamigen Element. Der Hash wird jetzt beim Setzen von `iframe.src` entfernt – der Inhalt des iframes wird davon nicht beeinflusst, da der Browser die Seite ohnehin vollständig lädt.
+
+---
+
 ## [1.0.5] – 2026-03-13
 
 ### Removed
