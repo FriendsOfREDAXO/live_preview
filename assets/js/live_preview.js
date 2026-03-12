@@ -29,10 +29,12 @@
     var STORAGE_MODAL_PRESET  = 'rex_lp_modal_preset';
 
     // Float-Panel: LocalStorage-Keys
-    var STORAGE_FLOAT_ACTIVE = 'rex_lp_float_active';
-    var STORAGE_FLOAT_LEFT   = 'rex_lp_float_left';
-    var STORAGE_FLOAT_TOP    = 'rex_lp_float_top';
-    var STORAGE_FLOAT_WIDTH  = 'rex_lp_float_width';
+    var STORAGE_FLOAT_ACTIVE  = 'rex_lp_float_active';
+    var STORAGE_FLOAT_LEFT    = 'rex_lp_float_left';
+    var STORAGE_FLOAT_TOP     = 'rex_lp_float_top';
+    var STORAGE_FLOAT_WIDTH   = 'rex_lp_float_width';
+    var STORAGE_FLOAT_HEIGHT  = 'rex_lp_float_height';
+    var floatResizeObserver   = null;
 
     // Float-Drag-Zustand
     var floatDrag = {
@@ -167,6 +169,15 @@
     }
 
     /** Löst das Bootstrap-.panel aus der Sidebar und macht es fixed + frei positionierbar. */
+    function setExpandButtonDisabled(disabled) {
+        var btn = document.getElementById('rex-lp-expand');
+        if (!btn) { return; }
+        btn.disabled = disabled;
+        btn.style.opacity = disabled ? '0.35' : '';
+        btn.style.pointerEvents = disabled ? 'none' : '';
+        btn.title = disabled ? 'Im Floating-Modus nicht verfügbar' : '';
+    }
+
     function enterFloatMode(panelEl) {
         floatDrag.active = true;
         var rect = panelEl.getBoundingClientRect();
@@ -179,11 +190,24 @@
         // Panel zu <body> verschieben
         document.body.appendChild(panelEl);
         panelEl.classList.add('rex-lp-floating');
-        panelEl.style.width = rect.width + 'px';
-        panelEl.style.left  = rect.left  + 'px';
-        panelEl.style.top   = rect.top   + 'px';
+        panelEl.style.width  = rect.width  + 'px';
+        panelEl.style.height = rect.height + 'px';
+        panelEl.style.left   = rect.left   + 'px';
+        panelEl.style.top    = rect.top    + 'px';
 
         addFloatDockButton(panelEl);
+        setExpandButtonDisabled(true);
+
+        // ResizeObserver bei Größänderung + Größe speichern
+        if (typeof ResizeObserver !== 'undefined') {
+            floatResizeObserver = new ResizeObserver(function () {
+                var device = localStorage.getItem(STORAGE_DEVICE) || 'desktop';
+                applyScale(device);
+                localStorage.setItem(STORAGE_FLOAT_WIDTH,  panelEl.offsetWidth  + 'px');
+                localStorage.setItem(STORAGE_FLOAT_HEIGHT, panelEl.offsetHeight + 'px');
+            });
+            floatResizeObserver.observe(panelEl);
+        }
 
         // Scale neu berechnen
         var device = localStorage.getItem(STORAGE_DEVICE) || 'desktop';
@@ -206,11 +230,18 @@
         }
 
         panelEl.classList.remove('rex-lp-floating');
-        panelEl.style.left  = '';
-        panelEl.style.top   = '';
-        panelEl.style.width = '';
+        panelEl.style.left   = '';
+        panelEl.style.top    = '';
+        panelEl.style.width  = '';
+        panelEl.style.height = '';
+
+        if (floatResizeObserver) {
+            floatResizeObserver.disconnect();
+            floatResizeObserver = null;
+        }
 
         removeFloatDockButton(panelEl);
+        setExpandButtonDisabled(false);
 
         floatDrag.active      = false;
         floatDrag.origParent  = null;
@@ -220,6 +251,7 @@
         localStorage.removeItem(STORAGE_FLOAT_LEFT);
         localStorage.removeItem(STORAGE_FLOAT_TOP);
         localStorage.removeItem(STORAGE_FLOAT_WIDTH);
+        localStorage.removeItem(STORAGE_FLOAT_HEIGHT);
 
         var device = localStorage.getItem(STORAGE_DEVICE) || 'desktop';
         setTimeout(function () { applyScale(device); }, 50);
@@ -243,11 +275,34 @@
 
         document.body.appendChild(panelEl);
         panelEl.classList.add('rex-lp-floating');
-        panelEl.style.width = localStorage.getItem(STORAGE_FLOAT_WIDTH) || '380px';
-        panelEl.style.left  = localStorage.getItem(STORAGE_FLOAT_LEFT)  || '20px';
-        panelEl.style.top   = localStorage.getItem(STORAGE_FLOAT_TOP)   || '80px';
+        panelEl.style.width  = localStorage.getItem(STORAGE_FLOAT_WIDTH)  || '380px';
+        panelEl.style.height = localStorage.getItem(STORAGE_FLOAT_HEIGHT) || '';
+        panelEl.style.left   = localStorage.getItem(STORAGE_FLOAT_LEFT)   || '20px';
+        panelEl.style.top    = localStorage.getItem(STORAGE_FLOAT_TOP)    || '80px';
 
         addFloatDockButton(panelEl);
+        setExpandButtonDisabled(true);
+
+        // ResizeObserver nach Restore anmelden
+        if (typeof ResizeObserver !== 'undefined') {
+            floatResizeObserver = new ResizeObserver(function () {
+                var device = localStorage.getItem(STORAGE_DEVICE) || 'desktop';
+                applyScale(device);
+                localStorage.setItem(STORAGE_FLOAT_WIDTH,  panelEl.offsetWidth  + 'px');
+                localStorage.setItem(STORAGE_FLOAT_HEIGHT, panelEl.offsetHeight + 'px');
+            });
+            floatResizeObserver.observe(panelEl);
+        }
+
+        // Panel sicherstellen dass es aufgeklappt ist, dann Scale berechnen
+        var collapseEl = panelEl.querySelector('.panel-collapse');
+        if (collapseEl && !collapseEl.classList.contains('in')) {
+            $(collapseEl).collapse('show');
+        }
+        setTimeout(function () {
+            var device = localStorage.getItem(STORAGE_DEVICE) || 'desktop';
+            applyScale(device);
+        }, 100);
     }
 
     function addFloatDockButton(panelEl) {
@@ -379,6 +434,7 @@
     function toggleExpand() {
         var panel = getPanel();
         if (!panel) { return; }
+        if (floatDrag.active) { return; } // Im Float-Modus kein Expand
 
         var expanded = panel.classList.toggle('rex-lp-expanded');
         var panelEl  = panel.closest('.panel');
