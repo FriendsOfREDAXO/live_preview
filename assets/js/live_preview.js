@@ -254,7 +254,6 @@
         if (panelEl.querySelector('.rex-lp-dock-btn')) { return; }
         var heading = panelEl.querySelector('.panel-heading');
         if (!heading) { return; }
-        heading.style.position = 'relative';
 
         var btn       = document.createElement('button');
         btn.type      = 'button';
@@ -265,15 +264,19 @@
             e.stopPropagation();
             exitFloatMode();
         });
-        heading.appendChild(btn);
+        // Vor dem Toggle-Switch einsetzen, damit kein Überlappen entsteht
+        var toggle = heading.querySelector('.rex-lp-header-toggle');
+        if (toggle) {
+            heading.insertBefore(btn, toggle);
+        } else {
+            heading.appendChild(btn);
+        }
     }
 
     function removeFloatDockButton(panelEl) {
         var btn = panelEl.querySelector('.rex-lp-dock-btn');
         if (btn) {
             btn.remove();
-            var heading = panelEl.querySelector('.panel-heading');
-            if (heading) { heading.style.position = ''; }
         }
     }
 

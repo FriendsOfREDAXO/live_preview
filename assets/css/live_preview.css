@@ -42,6 +42,77 @@
     height: calc(100vh - 165px);  /* Sticky-Top (68) + Panel-Header (~60) + Toolbar (~37) */
 }
 
+/* ---- Drag Handle (Grip-Icon in der Toolbar) ---- */
+.rex-lp-drag-handle {
+    cursor: grab;
+    background: none;
+    border: none;
+    padding: 0 8px 0 0;
+    color: #aaa;
+    font-size: 14px;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.15s;
+}
+.rex-lp-drag-handle:hover,
+.rex-lp-drag-handle:focus { color: #555; outline: none; }
+.rex-lp-drag-handle:active { cursor: grabbing; }
+
+/* ---- Floating Panel ---- */
+.panel.rex-lp-floating {
+    position: fixed !important;
+    z-index: 10000 !important;
+    margin: 0 !important;
+    min-width: 280px;
+    border-radius: 6px !important;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Heading wird zur Drag-Zone wenn floating */
+.panel.rex-lp-floating .panel-heading {
+    cursor: move;
+    user-select: none;
+}
+
+/* Placeholder in der Sidebar während das Panel floated */
+#rex-lp-placeholder {
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    height: 60px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+/* Dark Mode */
+body.rex-theme-dark #rex-lp-placeholder {
+    border-color: #555;
+}
+@media (prefers-color-scheme: dark) {
+    body.rex-has-theme:not(.rex-theme-light) #rex-lp-placeholder {
+        border-color: #555;
+    }
+}
+
+/* ---- Dock-Button (zurück in Sidebar, X oben rechts) ---- */
+.rex-lp-dock-btn {
+    float: right;
+    margin-left: 6px;
+    padding: 1px 7px;
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: inherit !important;
+    border-radius: 3px;
+    line-height: 1.6;
+    cursor: pointer;
+    transition: background 0.15s;
+    vertical-align: middle;
+}
+.rex-lp-dock-btn:hover {
+    background: rgba(0, 0, 0, 0.35) !important;
+}
+
 /* ---- Device-Simulation ---- */
 /* Desktop, Tablet, Mobile: Breite + Transform via JS (applyScale) */
 /* iframe darf nicht durch CSS begrenzt werden */
