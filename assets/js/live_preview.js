@@ -264,10 +264,10 @@
             e.stopPropagation();
             exitFloatMode();
         });
-        // Vor dem Toggle-Switch einsetzen, damit kein Überlappen entsteht
+        // Toggle ist tief verschachtelt (<h3><a>...<label>) – in dessen Parent einfügen
         var toggle = heading.querySelector('.rex-lp-header-toggle');
         if (toggle) {
-            heading.insertBefore(btn, toggle);
+            toggle.parentNode.insertBefore(btn, toggle);
         } else {
             heading.appendChild(btn);
         }
