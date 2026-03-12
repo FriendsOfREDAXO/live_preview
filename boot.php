@@ -10,8 +10,9 @@ if (!rex::isBackend() || !rex::getUser()) {
 rex_view::addCssFile($this->getAssetsUrl('css/live_preview.css'));
 rex_view::addJsFile($this->getAssetsUrl('js/live_preview.js'));
 
-// Namespaced API-Klasse registrieren (seit REDAXO 5.17 unterstützt)
+// Namespaced API-Klassen registrieren (seit REDAXO 5.17 unterstützt)
 rex_api_function::register('live_preview_url', \FriendsOfREDAXO\LivePreview\LivePreviewUrlApi::class);
+rex_api_function::register('live_preview_toggle', \FriendsOfREDAXO\LivePreview\LivePreviewToggleApi::class);
 
 // API-URL für JS bereitstellen
 rex_view::setJsProperty('livePreviewApiUrl', rex_url::backendController(['rex-api-call' => 'live_preview_url']));
@@ -65,12 +66,27 @@ rex_extension::register('STRUCTURE_CONTENT_SIDEBAR', static function (rex_extens
         return (string) ob_get_clean();
     })();
 
+    // User-Präferenz für das Panel lesen (Default: aktiviert)
+    $userId            = rex::getUser()->getId();
+    $livePreviewEnabled = (bool) rex_addon::get('live_preview')->getConfig('live_preview_enabled_' . $userId, true);
+    $toggleUrl          = rex_url::backendController(['rex-api-call' => 'live_preview_toggle']);
+    $toggleChecked      = $livePreviewEnabled ? ' checked="checked"' : '';
+
+    $panelTitle = '<i class="rex-icon fa-eye"></i> ' . rex_i18n::msg('live_preview_title')
+        . '<label class="rex-lp-header-toggle rex-lp-toggle-pill" onclick="event.stopPropagation()" title="' . rex_escape(rex_i18n::msg('live_preview_toggle_title')) . '">'
+        . '<input type="checkbox" class="rex-lp-enable-toggle"' . $toggleChecked . ' data-url="' . rex_escape($toggleUrl) . '">'
+        . '<span class="rex-lp-toggle-slider"></span>'
+        . '</label>';
+
+    // Wenn deaktiviert: leerer Body (kein iframe im DOM → lädt nicht)
+    $fragmentBody = $livePreviewEnabled ? $panel : '';
+
     // REDAXO-Standard-Panel (wie yrewrite)
     $fragment = new rex_fragment();
-    $fragment->setVar('title', '<i class="rex-icon fa-eye"></i> ' . rex_i18n::msg('live_preview_title'), false);
-    $fragment->setVar('body', $panel, false);
+    $fragment->setVar('title', $panelTitle, false);
+    $fragment->setVar('body', $fragmentBody, false);
     $fragment->setVar('collapse', true);
-    $fragment->setVar('collapsed', false);
+    $fragment->setVar('collapsed', !$livePreviewEnabled);
     $content = $fragment->parse('core/page/section.php');
 
     return $subject . $content;

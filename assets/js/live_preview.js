@@ -716,6 +716,47 @@
     }
 
     // -------------------------------------------------------------------------
+    // Panel Enable/Disable Toggle (per-User-Präferenz via API)
+    // -------------------------------------------------------------------------
+
+    document.addEventListener('click', function (e) {
+        // Verhindert, dass der Panel-Header (Bootstrap-Collapse) durch den Toggle-Klick getriggert wird
+        if (e.target.closest('.rex-lp-header-toggle')) {
+            e.stopPropagation();
+        }
+    }, true); // capture phase
+
+    document.addEventListener('change', function (e) {
+        var toggle = e.target.closest('.rex-lp-enable-toggle');
+        if (!toggle) { return; }
+        var enabled = toggle.checked;
+
+        // Sofort: iframe entladen wenn deaktiviert
+        var panel = document.getElementById('rex-lp-panel');
+        if (!enabled && panel) {
+            var iframe = panel.querySelector('#rex-lp-iframe');
+            if (iframe) { iframe.src = 'about:blank'; }
+        }
+
+        // Bootstrap-Panel kollabieren / aufklappen
+        var section = toggle.closest('.panel');
+        if (section) {
+            var collapseEl = section.querySelector('.panel-collapse');
+            if (collapseEl) {
+                $(collapseEl).collapse(enabled ? 'show' : 'hide');
+            }
+        }
+
+        // Präferenz speichern
+        // Beim Einschalten: reload, damit PHP den iframe frisch rendert
+        // Beim Ausschalten: kein reload nötig (iframe ist bereits entladen)
+        fetch(toggle.dataset.url + '&enabled=' + (enabled ? 1 : 0))
+            .then(function () {
+                if (enabled) { window.location.reload(); }
+            });
+    });
+
+    // -------------------------------------------------------------------------
     // Start – jQuery ist im REDAXO-Backend immer verfügbar
     // -------------------------------------------------------------------------
 
