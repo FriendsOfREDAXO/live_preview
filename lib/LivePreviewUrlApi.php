@@ -2,6 +2,15 @@
 
 namespace FriendsOfREDAXO\LivePreview;
 
+use rex;
+use rex_addon;
+use rex_api_function;
+use rex_api_result;
+use rex_article_revision;
+use rex_backend_login;
+use rex_clang;
+use rex_response;
+
 /**
  * Live Preview – API-Endpunkt
  *

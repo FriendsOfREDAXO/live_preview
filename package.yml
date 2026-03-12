@@ -1,7 +1,8 @@
 package: live_preview
-version: '1.0.3'
+version: '1.0.4'
 author: 'Friends Of REDAXO'
 supportpage: https://github.com/FriendsOfREDAXO/live_preview
+load_frontend: true
 
 autoload:
     classes:

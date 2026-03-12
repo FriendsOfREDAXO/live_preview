@@ -75,6 +75,18 @@
     function getPanel()   { return document.getElementById('rex-lp-panel'); }
     function getIframe()  { return document.getElementById('rex-lp-iframe'); }
 
+    /**
+     * Fügt lp_anchors=1 an eine Frontend-URL an (für SLICE_SHOW-Anker im iframe).
+     * Bestehende lp_anchors-Parameter werden vorher entfernt.
+     */
+    function addLpAnchors(url) {
+        if (!url || url === 'about:blank') { return url; }
+        var base = url.split('#')[0].replace(/([?&])lp_anchors=\d+&?/, function(m, sep) {
+            return sep === '?' ? '?' : '';
+        }).replace(/[?&]$/, '');
+        return base + (base.indexOf('?') !== -1 ? '&' : '?') + 'lp_anchors=1';
+    }
+
     // -------------------------------------------------------------------------
     // Float-Panel – Drag-to-detach
     // -------------------------------------------------------------------------
@@ -485,14 +497,25 @@
     function refreshIframe() {
         var iframe = getIframe();
         if (!iframe) { return; }
-        try {
-            iframe.contentWindow.location.reload();
-        } catch (e) {
-            // Cross-Origin-Fallback: src neu setzen
-            var src = iframe.src;
-            iframe.src = '';
-            setTimeout(function () { iframe.src = src; }, 50);
+
+        var baseUrl = iframe.dataset.src || '';
+        if (!baseUrl) {
+            // Fallback wenn data-src nicht gesetzt
+            try {
+                iframe.contentWindow.location.reload();
+            } catch (e) {
+                var old = iframe.src;
+                iframe.src = '';
+                setTimeout(function () { iframe.src = old; }, 50);
+            }
+            return;
         }
+
+        // slice_id aus der aktuellen Backend-URL lesen:
+        // Nach Klick auf "Bearbeiten" steht die ID im URL-Parameter.
+        var params = new window.URLSearchParams(window.location.search);
+        var sliceId = params.get('slice_id');
+        iframe.src = addLpAnchors(baseUrl) + (sliceId ? '#rex-slice-' + sliceId : '');
     }
 
     function scheduleRefresh(delay) {
@@ -987,7 +1010,9 @@
             $.getJSON(apiUrl, { article_id: articleId, clang: clang })
                 .done(function (data) {
                     if (data && data.url) {
-                        iframe.src = data.url;
+                        // dataset.src aktuell halten (clean URL ohne lp_anchors/hash)
+                        iframe.dataset.src = data.url;
+                        iframe.src = addLpAnchors(data.url);
 
                         // Modal-iframe ebenfalls aktualisieren wenn offen
                         var modal   = document.getElementById('rex-lp-modal');
@@ -1041,7 +1066,7 @@
             if (iframe) {
                 if (enabled) {
                     // Kein Reload nötig: data-src ist immer aktuell
-                    iframe.src = iframe.dataset.src || '';
+                    iframe.src = addLpAnchors(iframe.dataset.src || '');
                 } else {
                     iframe.src = 'about:blank';
                 }

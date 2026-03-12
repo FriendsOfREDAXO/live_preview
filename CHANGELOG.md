@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.4] – 2026-03-13
+
+### Added
+
+- **Slice-Scroll**: Nach dem Speichern eines Slices scrollt der iframe automatisch zur Position des bearbeiteten Slices
+- `SLICE_SHOW`-Extension-Point injiziert unsichtbare Scroll-Anker (`<span id="rex-slice-{id}">`) ins Frontend – nur wenn `?lp_anchors=1` in der iframe-URL steht
+- `load_frontend: true` in `package.yml` damit `boot.php` auch im Frontend ausgeführt wird
+
+### Fixed
+
+- `LivePreviewUrlApi`: fehlende `use`-Statements für REDAXO-Klassen im Namespace ergänzt
+
+---
+
 ## [1.0.3] – 2026-03-12
 
 ### Fixed
