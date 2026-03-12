@@ -64,9 +64,43 @@
     z-index: 10000 !important;
     margin: 0 !important;
     min-width: 280px;
+    min-height: 160px;
     border-radius: 6px !important;
-    overflow: hidden;
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4) !important;
+    /* Freies Skalieren per CSS-resize */
+    resize: both;
+    overflow: auto !important;
+    /* Flex-Layout damit iframe-wrap mit dem Panel wächst */
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.panel.rex-lp-floating .panel-collapse {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel.rex-lp-floating .panel-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
+}
+
+.panel.rex-lp-floating .panel-body #rex-lp-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel.rex-lp-floating .rex-lp-iframe-wrap {
+    flex: 1;
+    height: auto !important;
+    min-height: 80px;
 }
 
 /* Heading wird zur Drag-Zone wenn floating */
