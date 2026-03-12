@@ -107,9 +107,15 @@
         var panelEl = panel.closest('.panel');
         if (!panelEl) { return; }
 
-        // Nur am Drag-Handle ablösen/verschieben (nicht am Titel, kläppt sonst zusammen)
-        var fromHandle = e.target.closest('.rex-lp-drag-handle');
-        if (!fromHandle) { return; }
+        // Grip-Handle: immer; Heading: nur wenn bereits floating (Collapse ist dann deaktiviert)
+        var fromHandle  = e.target.closest('.rex-lp-drag-handle');
+        var fromHeading = floatDrag.active &&
+                          e.target.closest('.panel-heading') &&
+                          panelEl.contains(e.target) &&
+                          !e.target.closest('.rex-lp-dock-btn') &&
+                          !e.target.closest('.rex-lp-header-toggle') &&
+                          !e.target.closest('input');
+        if (!fromHandle && !fromHeading) { return; }
 
         e.preventDefault();
         var rect = panelEl.getBoundingClientRect();
@@ -347,6 +353,19 @@
 
         initDraggable();
         restoreFloatState();
+
+        // Bootstrap-Collapse im Float-Modus deaktivieren (Header = Drag-Zone)
+        document.addEventListener('click', function (e) {
+            if (!floatDrag.active) { return; }
+            var panel   = getPanel();
+            var panelEl = panel && panel.closest('.panel');
+            if (!panelEl) { return; }
+            var headingLink = e.target.closest('.panel-heading [data-toggle="collapse"], .panel-heading a[href]');
+            if (headingLink && panelEl.contains(headingLink)) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            }
+        }, true); // capture phase
 
         // Modal aus der Sidebar herauslösen und direkt in <body> hängen,
         // damit es nicht vom REDAXO-Sidebar-Opacity-Effekt (mouseleave) betroffen ist.
