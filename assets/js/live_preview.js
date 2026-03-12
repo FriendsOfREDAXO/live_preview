@@ -748,11 +748,13 @@
         }
 
         // Präferenz speichern
-        // Beim Einschalten: reload, damit PHP den iframe frisch rendert
-        // Beim Ausschalten: kein reload nötig (iframe ist bereits entladen)
+        // Beim Einschalten: PJAX-Reload des Seitencontainers, damit PHP den iframe frisch rendert
+        // Beim Ausschalten: kein Reload nötig (iframe ist bereits entladen)
         fetch(toggle.dataset.url + '&enabled=' + (enabled ? 1 : 0))
             .then(function () {
-                if (enabled) { window.location.reload(); }
+                if (enabled) {
+                    $.pjax.reload({ container: '#rex-js-pjax-container', timeout: 5000 });
+                }
             });
     });
 
