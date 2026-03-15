@@ -5,6 +5,70 @@
 
 /* ---- Toolbar ---- */
 .rex-lp-toolbar {
+
+/* ------------------------------------------------------------
+   Responsive: Sidebar toolbar - Buttons bei kleinen Bildschirmen
+   Sorgt dafür, dass die Device-Buttons und Action-Buttons
+   umgebrochen bzw. gestapelt werden und kein Overflow entsteht.
+   ------------------------------------------------------------ */
+@media (max-width: 640px) {
+    .rex-lp-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        justify-content: flex-start;
+        overflow: visible;
+    }
+
+    .rex-lp-devices,
+    .rex-lp-actions {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        gap: 6px;
+        margin: 0;
+        padding: 0 2px;
+    }
+
+    .rex-lp-devices { order: 1; }
+    .rex-lp-actions { order: 2; }
+
+    .rex-lp-devices .btn,
+    .rex-lp-actions .btn {
+        padding: 4px 6px;
+        font-size: 13px;
+        line-height: 1.2;
+    }
+
+    /* Link-Button (öffnen) bleibt inline, aber passt sich an */
+    .rex-lp-actions a.btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 420px) {
+    /* Sehr kleine Sidebar: Toolbar vertikal anordnen */
+    .rex-lp-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .rex-lp-devices,
+    .rex-lp-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .rex-lp-devices .btn,
+    .rex-lp-actions .btn {
+        flex: 1 1 auto;
+    }
+}
+
     display: flex;
     align-items: center;
     justify-content: space-between;
