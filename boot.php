@@ -6,6 +6,11 @@ if (!rex::isBackend() || !rex::getUser()) {
     return;
 }
 
+$livePreviewUser = rex_backend_login::createUser();
+if (!$livePreviewUser instanceof rex_user) {
+    return;
+}
+
 // CSS & JS nur im Backend laden
 rex_view::addCssFile($this->getAssetsUrl('css/live_preview.css'));
 rex_view::addJsFile($this->getAssetsUrl('js/live_preview.js'));
@@ -23,8 +28,19 @@ rex_extension::register('STRUCTURE_CONTENT_SIDEBAR', static function (rex_extens
     $subject    = $ep->getSubject();
     $articleId  = (int) ($params['article_id'] ?? 0);
     $clang      = (int) ($params['clang'] ?? rex_clang::getCurrentId());
+    $user       = rex_backend_login::createUser();
 
-    if ($articleId <= 0) {
+    if ($articleId <= 0 || !$user instanceof rex_user) {
+        return $subject;
+    }
+
+    $article = rex_article::get($articleId, $clang);
+    if (!$article instanceof rex_article) {
+        return $subject;
+    }
+
+    if (!$user->getComplexPerm('clang')->hasPerm($clang)
+        || !$user->getComplexPerm('structure')->hasCategoryPerm($article->getCategoryId())) {
         return $subject;
     }
 
@@ -58,9 +74,12 @@ rex_extension::register('STRUCTURE_CONTENT_SIDEBAR', static function (rex_extens
 
     // Panel-Inhalt aus Include holen (gibt HTML-String zurück)
     // User-Präferenz für das Panel lesen (Default: aktiviert)
-    $userId             = rex::getUser()->getId();
+    $userId             = $user->getId();
     $livePreviewEnabled = (bool) rex_addon::get('live_preview')->getConfig('live_preview_enabled_' . $userId, true);
-    $toggleUrl          = rex_url::backendController(['rex-api-call' => 'live_preview_toggle']);
+    $toggleUrl          = rex_url::backendController([
+        'rex-api-call' => 'live_preview_toggle',
+        '_csrf_token' => rex_csrf_token::factory('live_preview_toggle')->getValue(),
+    ]);
     $toggleChecked      = $livePreviewEnabled ? ' checked="checked"' : '';
 
     // Panel-Inhalt immer rendern (iframe ist immer im DOM, src nur wenn aktiviert)

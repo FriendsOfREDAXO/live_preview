@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.8] – 2026-08-03
+
+### Security
+
+- **Rechteprüfung für Zielartikel ergänzt**: `LivePreviewUrlApi` prüft nun zusätzlich zur Backend-Authentifizierung auch die Berechtigungen für den angefragten Artikel und die Sprache:
+	- `clang`-Recht des Nutzers
+	- Struktur-Kategorie-Recht des Zielartikels
+- **Sidebar-Rendering gehärtet**: Das Live-Preview-Panel wird nur gerendert, wenn der aktuelle Backend-Nutzer den Zielartikel in der gewählten Sprache auch wirklich sehen darf.
+- **Auth-Härtung**: APIs verwenden nun eine valide User-Erzeugung über `rex_backend_login::createUser()` statt einer reinen Session-Präsenzprüfung.
+- **CSRF-Schutz für Toggle-API**: Der Statuswechsel (aktiv/inaktiv) ist jetzt serverseitig mit CSRF-Token abgesichert.
+
+### Fixed
+
+- **IDOR-Risiko reduziert**: Unberechtigte URL-Auflösung für fremde `article_id`/`clang`-Kombinationen über die Live-Preview-URL-API wird unterbunden.
+
 ## [1.0.6] – 2026-03-13
 
 ### Fixed

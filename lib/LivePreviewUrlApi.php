@@ -28,8 +28,9 @@ class LivePreviewUrlApi extends \rex_api_function
     {
         rex_response::cleanOutputBuffers();
 
-        // Nur für eingeloggte Backend-Nutzer
-        if (!rex_backend_login::hasSession()) {
+        // Nur für valide eingeloggte Backend-Nutzer
+        $user = rex_backend_login::createUser();
+        if (!$user instanceof \rex_user) {
             rex_response::setStatus(rex_response::HTTP_UNAUTHORIZED);
             rex_response::sendJson(['error' => 'Unauthorized']);
             exit;
@@ -41,6 +42,20 @@ class LivePreviewUrlApi extends \rex_api_function
         if ($articleId <= 0) {
             rex_response::setStatus(rex_response::HTTP_BAD_REQUEST);
             rex_response::sendJson(['error' => 'Invalid article_id']);
+            exit;
+        }
+
+        $article = \rex_article::get($articleId, $clang);
+        if (!$article instanceof \rex_article) {
+            rex_response::setStatus(rex_response::HTTP_NOT_FOUND);
+            rex_response::sendJson(['error' => 'Article not found']);
+            exit;
+        }
+
+        if (!$user->getComplexPerm('clang')->hasPerm($clang)
+            || !$user->getComplexPerm('structure')->hasCategoryPerm($article->getCategoryId())) {
+            rex_response::setStatus(rex_response::HTTP_FORBIDDEN);
+            rex_response::sendJson(['error' => 'Forbidden']);
             exit;
         }
 

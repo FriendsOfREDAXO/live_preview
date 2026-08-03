@@ -19,13 +19,20 @@ class LivePreviewToggleApi extends \rex_api_function
     {
         \rex_response::cleanOutputBuffers();
 
-        if (!\rex_backend_login::hasSession()) {
+        $user = \rex_backend_login::createUser();
+        if (!$user instanceof \rex_user) {
             \rex_response::setStatus(\rex_response::HTTP_UNAUTHORIZED);
             \rex_response::sendJson(['error' => 'Unauthorized']);
             exit;
         }
 
-        $userId  = \rex::getUser()->getId();
+        if (!\rex_csrf_token::factory('live_preview_toggle')->isValid()) {
+            \rex_response::setStatus(\rex_response::HTTP_FORBIDDEN);
+            \rex_response::sendJson(['error' => 'Invalid CSRF token']);
+            exit;
+        }
+
+        $userId  = $user->getId();
         $enabled = (bool) \rex_request('enabled', 'int', 1);
 
         \rex_addon::get('live_preview')->setConfig('live_preview_enabled_' . $userId, $enabled);
