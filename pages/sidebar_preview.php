@@ -46,7 +46,7 @@
             id="rex-lp-iframe"
             data-src="<?= rex_escape($livePreviewUrl) ?>"
             <?php if ($livePreviewEnabled): ?>src="<?= rex_escape($livePreviewUrl) ?>"<?php endif; ?>
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+            sandbox="allow-scripts allow-forms allow-popups"
         ></iframe>
     </div>
 
@@ -121,7 +121,7 @@
             <div id="rex-lp-modal-frame-wrap">
                 <iframe
                     id="rex-lp-modal-iframe"
-                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                    sandbox="allow-scripts allow-forms allow-popups"
                 ></iframe>
                 <div class="rex-lp-rh rex-lp-rh-e"  data-dir="e"></div>
                 <div class="rex-lp-rh rex-lp-rh-s"  data-dir="s"></div>
